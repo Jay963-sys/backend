@@ -21,7 +21,18 @@ router.post("/login", async (req, res) => {
         .json({ message: "Invalid credentials or inactive account" });
     }
 
+    console.log({
+      userFound: !!user,
+      dbPassword: user ? user.password : null,
+      enteredPassword: password,
+    });
+
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log({
+      userFound: !!user,
+      dbPassword: user ? user.password : null,
+      enteredPassword: password,
+    });
 
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid username or password" });
