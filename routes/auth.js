@@ -28,6 +28,7 @@ router.post("/login", async (req, res) => {
     });
 
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log({ passwordMatch: isMatch });
     console.log({
       userFound: !!user,
       dbPassword: user ? user.password : null,
