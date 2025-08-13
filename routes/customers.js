@@ -118,8 +118,6 @@ router.delete("/:id", authMiddleware, async (req, res) => {
   }
 });
 
-module.exports = router;
-
 // GET /api/customers/:id/history - Fetch all faults for a customer
 router.get("/:id/history", authMiddleware, async (req, res) => {
   try {
@@ -132,6 +130,50 @@ router.get("/:id/history", authMiddleware, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error fetching fault history" });
+  }
+});
+
+// Update a customer (Admin only)
+router.put("/:id", authMiddleware, async (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Only admin can update customers" });
+  }
+
+  const {
+    company,
+    circuit_id,
+    type,
+    location,
+    ip_address,
+    pop_site,
+    email,
+    switch_info,
+    owner,
+  } = req.body;
+
+  try {
+    const customer = await Customer.findByPk(req.params.id);
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
+
+    // Update only provided fields
+    await customer.update({
+      company: company ?? customer.company,
+      circuit_id: circuit_id ?? customer.circuit_id,
+      type: type ?? customer.type,
+      location: location ?? customer.location,
+      ip_address: ip_address ?? customer.ip_address,
+      pop_site: pop_site ?? customer.pop_site,
+      email: email ?? customer.email,
+      switch_info: switch_info ?? customer.switch_info,
+      owner: owner ?? customer.owner,
+    });
+
+    res.json({ message: "Customer updated", customer });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error updating customer" });
   }
 });
 
